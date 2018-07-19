@@ -1,4 +1,5 @@
 import cn.org.rapid_framework.generator.GeneratorFacade;
+import cn.org.rapid_framework.generator.provider.db.table.model.Table;
 
 /**
  * @auther: mm
@@ -8,6 +9,7 @@ import cn.org.rapid_framework.generator.GeneratorFacade;
 public class CodeGenerator {
     public static void main(String[] args) throws Exception {
         // 模板地址
+
         String templatePath = "E:\\happy\\src\\main\\resources\\template";
         GeneratorFacade g = new GeneratorFacade();
         System.out.println("1111111111111");
