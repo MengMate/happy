@@ -12,6 +12,7 @@ import org.springframework.util.Assert;
 /**
 <#include "/java_description.include">
  */
+@SuppressWarnings({"serial", "SpellCheckingInspection"})
 public interface ${className}Service{
 
 	/**

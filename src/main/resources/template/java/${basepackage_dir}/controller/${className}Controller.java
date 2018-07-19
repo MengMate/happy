@@ -22,7 +22,8 @@ import cn.org.rapid_framework.beanutils.BeanUtils;
 <#include "/java_description.include">
  */
 @Controller
-public class ${className}Controller extends BaseSpringController{
+@SuppressWarnings({"serial", "SpellCheckingInspection"})
+public class ${className}Controller{
 	//默认多列排序,example: username desc,createTime asc
 	protected static final String DEFAULT_SORT_COLUMNS = null;
 

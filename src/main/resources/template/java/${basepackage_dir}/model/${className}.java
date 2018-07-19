@@ -16,7 +16,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 /**
 <#include "/java_description.include">
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial", "SpellCheckingInspection"})
 public class ${className}  implements java.io.Serializable{
 	private static final long serialVersionUID = 5454155825314635342L;
 

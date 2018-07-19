@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 <#include "/java_description.include">
  */
 @Repository
+@SuppressWarnings({"serial", "SpellCheckingInspection"})
 public class ${className}Dao extends BaseMybatisDao<${className},${table.idColumn.javaType}>{
 
 	@Override
