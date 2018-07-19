@@ -1,0 +1,122 @@
+        <?xml version="1.0" encoding="UTF-8" ?>
+        <!DOCTYPE mapper
+                PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+                "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+
+        <!-- 不使用namespace的话sql搜索定位会比较方便 -->
+<mapper namespace="Tactivity">
+
+<resultMap id="RM.Tactivity" type="com.mam.model.Tactivity">
+    <result property="id" column="ID"/>
+    <result property="name" column="NAME"/>
+    <result property="content" column="CONTENT"/>
+    <result property="status" column="STATUS"/>
+    <result property="createdate" column="CREATEDATE"/>
+    <result property="updatedate" column="UPDATEDATE"/>
+</resultMap>
+
+        <!-- 用于select查询公用抽取的列 -->
+<sql id="Tactivity.columns">
+<![CDATA[
+		ID,NAME,CONTENT,STATUS,CREATEDATE,UPDATEDATE
+	    ]]>
+</sql>
+
+        <!-- useGeneratedKeys="true" keyProperty="xxx" for sqlserver and mysql -->
+<insert id="Tactivity.insert" useGeneratedKeys="true" keyProperty="id">
+<![CDATA[
+        INSERT INTO t_activity (
+         ID, NAME, CONTENT, STATUS, CREATEDATE, UPDATEDATE
+        ) VALUES (
+         #{id}, #{name}, #{content}, #{status}, #{createdate}, #{updatedate}        
+        )
+    ]]>
+<!--
+    oracle: order="BEFORE" SELECT sequenceName.nextval AS ID FROM DUAL
+    DB2: order="BEFORE"" values nextval for sequenceName
+<selectKey resultType="java.lang.Long" order="BEFORE" keyProperty="userId">
+    SELECT sequenceName.nextval AS ID FROM DUAL
+</selectKey>
+-->
+</insert>
+
+<update id="Tactivity.update">
+<![CDATA[
+        UPDATE t_activity SET
+	        NAME = #{name} , CONTENT = #{content} , STATUS = #{status} , CREATEDATE = #{createdate} , UPDATEDATE = #{updatedate}  
+        WHERE 
+        	ID = #{id}  	        
+    ]]>
+</update>
+
+<delete id="Tactivity.delete">
+<![CDATA[
+        DELETE FROM t_activity WHERE
+        ID = #{id} 
+    ]]>
+</delete>
+
+<select id="Tactivity.getById" resultMap="RM.Tactivity">
+SELECT
+<include refid="Tactivity.columns"/>
+<![CDATA[
+		    FROM t_activity 
+	        WHERE 
+		        ID = #{id} 
+	    ]]>
+</select>
+
+<sql id="Tactivity.findPage.where">
+<!-- ognl访问静态方法的表达式 为@class@method(args),以下为调用rapid中的Ognl.isNotEmpty()方法,还有其它方法如isNotBlank()可以使用，具体请查看Ognl类 -->
+<where>
+    <if test="@Ognl@isNotEmpty(id)">
+        AND ID =#{id}
+    </if>
+    <if test="@Ognl@isNotEmpty(name)">
+        AND NAME =#{name}
+    </if>
+    <if test="@Ognl@isNotEmpty(content)">
+        AND CONTENT =#{content}
+    </if>
+    <if test="@Ognl@isNotEmpty(status)">
+        AND STATUS =#{status}
+    </if>
+    <if test="@Ognl@isNotEmpty(createdateBegin)">
+        AND CREATEDATE >=#{createdateBegin}
+    </if>
+    <if test="@Ognl@isNotEmpty(createdateEnd)">
+        AND CREATEDATE &lt;=#{createdateEnd}
+    </if>
+    <if test="@Ognl@isNotEmpty(updatedateBegin)">
+        AND UPDATEDATE >=#{updatedateBegin}
+    </if>
+    <if test="@Ognl@isNotEmpty(updatedateEnd)">
+        AND UPDATEDATE &lt;=#{updatedateEnd}
+    </if>
+        </where>
+        </sql>
+
+<select id="Tactivity.findPage.count" resultType="long">
+SELECT count(*) FROM t_activity
+<include refid="Tactivity.findPage.where"/>
+</select>
+
+        <!--
+            分页查询已经使用Dialect进行分页,也可以不使用Dialect直接编写分页
+            因为分页查询将传 offset,pageSize,lastRows 三个参数,不同的数据库可以根于此三个参数属性应用不同的分页实现
+        -->
+<select id="Tactivity.findPage" resultMap="RM.Tactivity">
+SELECT
+<include refid="Tactivity.columns"/>
+FROM t_activity
+<include refid="Tactivity.findPage.where"/>
+
+<if test="@Ognl@isNotEmpty(sortColumns)">
+    ORDER BY${sortColumns}
+</if>
+</select>
+
+
+        </mapper>
+

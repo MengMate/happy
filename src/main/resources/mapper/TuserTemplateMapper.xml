@@ -1,0 +1,104 @@
+        <?xml version="1.0" encoding="UTF-8" ?>
+        <!DOCTYPE mapper
+                PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+                "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+
+        <!-- 不使用namespace的话sql搜索定位会比较方便 -->
+<mapper namespace="TuserTemplate">
+
+<resultMap id="RM.TuserTemplate" type="com.mam.model.TuserTemplate">
+    <result property="id" column="ID"/>
+    <result property="userid" column="USERID"/>
+    <result property="templateid" column="TEMPLATEID"/>
+</resultMap>
+
+        <!-- 用于select查询公用抽取的列 -->
+<sql id="TuserTemplate.columns">
+<![CDATA[
+		ID,USERID,TEMPLATEID
+	    ]]>
+</sql>
+
+        <!-- useGeneratedKeys="true" keyProperty="xxx" for sqlserver and mysql -->
+<insert id="TuserTemplate.insert" useGeneratedKeys="true" keyProperty="id">
+<![CDATA[
+        INSERT INTO t_user_template (
+         ID, USERID, TEMPLATEID
+        ) VALUES (
+         #{id}, #{userid}, #{templateid}        
+        )
+    ]]>
+<!--
+    oracle: order="BEFORE" SELECT sequenceName.nextval AS ID FROM DUAL
+    DB2: order="BEFORE"" values nextval for sequenceName
+<selectKey resultType="java.lang.Long" order="BEFORE" keyProperty="userId">
+    SELECT sequenceName.nextval AS ID FROM DUAL
+</selectKey>
+-->
+</insert>
+
+<update id="TuserTemplate.update">
+<![CDATA[
+        UPDATE t_user_template SET
+	        USERID = #{userid} , TEMPLATEID = #{templateid}  
+        WHERE 
+        	ID = #{id}  	        
+    ]]>
+</update>
+
+<delete id="TuserTemplate.delete">
+<![CDATA[
+        DELETE FROM t_user_template WHERE
+        ID = #{id} 
+    ]]>
+</delete>
+
+<select id="TuserTemplate.getById" resultMap="RM.TuserTemplate">
+SELECT
+<include refid="TuserTemplate.columns"/>
+<![CDATA[
+		    FROM t_user_template 
+	        WHERE 
+		        ID = #{id} 
+	    ]]>
+</select>
+
+<sql id="TuserTemplate.findPage.where">
+<!-- ognl访问静态方法的表达式 为@class@method(args),以下为调用rapid中的Ognl.isNotEmpty()方法,还有其它方法如isNotBlank()可以使用，具体请查看Ognl类 -->
+<where>
+    <if test="@Ognl@isNotEmpty(id)">
+        AND ID =#{id}
+    </if>
+    <if test="@Ognl@isNotEmpty(userid)">
+        AND USERID =#{userid}
+    </if>
+    <if test="@Ognl@isNotEmpty(templateid)">
+        AND TEMPLATEID =#{templateid}
+    </if>
+        </where>
+        </sql>
+
+<select id="TuserTemplate.findPage.count" resultType="long">
+SELECT count(*) FROM t_user_template
+<include refid="TuserTemplate.findPage.where"/>
+</select>
+
+        <!--
+            分页查询已经使用Dialect进行分页,也可以不使用Dialect直接编写分页
+            因为分页查询将传 offset,pageSize,lastRows 三个参数,不同的数据库可以根于此三个参数属性应用不同的分页实现
+        -->
+<select id="TuserTemplate.findPage" resultMap="RM.TuserTemplate">
+SELECT
+<include refid="TuserTemplate.columns"/>
+FROM t_user_template
+<include refid="TuserTemplate.findPage.where"/>
+
+<if test="@Ognl@isNotEmpty(sortColumns)">
+    ORDER BY${sortColumns}
+</if>
+</select>
+
+
+        </mapper>
+

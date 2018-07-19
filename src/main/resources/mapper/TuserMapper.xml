@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+        "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+
+<!-- 不使用namespace的话sql搜索定位会比较方便 -->
+<mapper namespace="Tuser">
+
+    <resultMap id="RM.Tuser" type="com.mam.model.Tuser">
+        <result property="id" column="ID"/>
+        <result property="username" column="USERNAME"/>
+        <result property="usercode" column="USERCODE"/>
+        <result property="userimg" column="USERIMG"/>
+        <result property="account" column="ACCOUNT"/>
+        <result property="password" column="PASSWORD"/>
+        <result property="status" column="STATUS"/>
+        <result property="createdate" column="CREATEDATE"/>
+        <result property="updatedate" column="UPDATEDATE"/>
+    </resultMap>
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="Tuser.columns">
+        <![CDATA[
+		ID,USERNAME,USERCODE,USERIMG,ACCOUNT,PASSWORD,STATUS,CREATEDATE,UPDATEDATE
+	    ]]>
+    </sql>
+
+    <!-- useGeneratedKeys="true" keyProperty="xxx" for sqlserver and mysql -->
+    <insert id="Tuser.insert" useGeneratedKeys="true" keyProperty="id">
+        <![CDATA[
+        INSERT INTO t_user (
+         ID, USERNAME, USERCODE, USERIMG, ACCOUNT, PASSWORD, STATUS, CREATEDATE, UPDATEDATE
+        ) VALUES (
+         #{id}, #{username}, #{usercode}, #{userimg}, #{account}, #{password}, #{status}, #{createdate}, #{updatedate}        
+        )
+    ]]>
+        <!--
+            oracle: order="BEFORE" SELECT sequenceName.nextval AS ID FROM DUAL
+            DB2: order="BEFORE"" values nextval for sequenceName
+        <selectKey resultType="java.lang.Long" order="BEFORE" keyProperty="userId">
+            SELECT sequenceName.nextval AS ID FROM DUAL
+        </selectKey>
+        -->
+    </insert>
+
+    <update id="Tuser.update">
+    <![CDATA[
+
+        UPDATE t_user SET
+	        USERNAME = #{username} , USERCODE = #{usercode} , USERIMG = #{userimg} , ACCOUNT = #{account} , PASSWORD = #{password} , STATUS = #{status} , CREATEDATE = #{createdate} , UPDATEDATE = #{updatedate}  
+        WHERE 
+        	ID = #{id}  	        
+
+        ]]>
+	</update>
+
+    <delete id="Tuser.delete">
+    <![CDATA[
+
+        DELETE FROM t_user WHERE
+        ID = #{id} 
+
+        ]]>
+    </delete>
+
+    <select id="Tuser.getById" resultMap="RM.Tuser">
+        SELECT
+        <include refid="Tuser.columns"/>
+        <![CDATA[
+		    FROM t_user 
+	        WHERE 
+		        ID = #{id} 
+	    ]]>
+    </select>
+
+    <sql id="Tuser.findPage.where">
+        <!-- ognl访问静态方法的表达式 为@class@method(args),以下为调用rapid中的Ognl.isNotEmpty()方法,还有其它方法如isNotBlank()可以使用，具体请查看Ognl类 -->
+        <where>
+            <if test="@Ognl@isNotEmpty(id)">
+                AND ID = #{id}
+            </if>
+            <if test="@Ognl@isNotEmpty(username)">
+                AND USERNAME = #{username}
+            </if>
+            <if test="@Ognl@isNotEmpty(usercode)">
+                AND USERCODE = #{usercode}
+            </if>
+            <if test="@Ognl@isNotEmpty(userimg)">
+                AND USERIMG = #{userimg}
+            </if>
+            <if test="@Ognl@isNotEmpty(account)">
+                AND ACCOUNT = #{account}
+            </if>
+            <if test="@Ognl@isNotEmpty(password)">
+                AND PASSWORD = #{password}
+            </if>
+            <if test="@Ognl@isNotEmpty(status)">
+                AND STATUS = #{status}
+            </if>
+            <if test="@Ognl@isNotEmpty(createdateBegin)">
+                AND CREATEDATE >= #{createdateBegin}
+            </if>
+            <if test="@Ognl@isNotEmpty(createdateEnd)">
+                AND CREATEDATE &lt;= #{createdateEnd}
+            </if>
+            <if test="@Ognl@isNotEmpty(updatedateBegin)">
+                AND UPDATEDATE >= #{updatedateBegin}
+            </if>
+            <if test="@Ognl@isNotEmpty(updatedateEnd)">
+                AND UPDATEDATE &lt;= #{updatedateEnd}
+            </if>
+        </where>
+    </sql>
+
+    <select id="Tuser.findPage.count" resultType="long">
+        SELECT count(*) FROM t_user
+        <include refid="Tuser.findPage.where"/>
+    </select>
+
+    <!--
+    	分页查询已经使用Dialect进行分页,也可以不使用Dialect直接编写分页
+    	因为分页查询将传 offset,pageSize,lastRows 三个参数,不同的数据库可以根于此三个参数属性应用不同的分页实现
+    -->
+    <select id="Tuser.findPage" resultMap="RM.Tuser">
+        SELECT
+        <include refid="Tuser.columns"/>
+        FROM t_user
+        <include refid="Tuser.findPage.where"/>
+
+        <if test="@Ognl@isNotEmpty(sortColumns)">
+            ORDER BY ${sortColumns}
+        </if>
+    </select>
+
+
+</mapper>
+

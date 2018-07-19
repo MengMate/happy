@@ -1,0 +1,122 @@
+        <?xml version="1.0" encoding="UTF-8" ?>
+        <!DOCTYPE mapper
+                PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+                "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+
+        <!-- 不使用namespace的话sql搜索定位会比较方便 -->
+<mapper namespace="Tmessage">
+
+<resultMap id="RM.Tmessage" type="com.mam.model.Tmessage">
+    <result property="id" column="ID"/>
+    <result property="title" column="TITLE"/>
+    <result property="content" column="CONTENT"/>
+    <result property="createdate" column="CREATEDATE"/>
+    <result property="updatedate" column="UPDATEDATE"/>
+    <result property="templateid" column="TEMPLATEID"/>
+</resultMap>
+
+        <!-- 用于select查询公用抽取的列 -->
+<sql id="Tmessage.columns">
+<![CDATA[
+		ID,TITLE,CONTENT,CREATEDATE,UPDATEDATE,TEMPLATEID
+	    ]]>
+</sql>
+
+        <!-- useGeneratedKeys="true" keyProperty="xxx" for sqlserver and mysql -->
+<insert id="Tmessage.insert" useGeneratedKeys="true" keyProperty="id">
+<![CDATA[
+        INSERT INTO t_message (
+         ID, TITLE, CONTENT, CREATEDATE, UPDATEDATE, TEMPLATEID
+        ) VALUES (
+         #{id}, #{title}, #{content}, #{createdate}, #{updatedate}, #{templateid}        
+        )
+    ]]>
+<!--
+    oracle: order="BEFORE" SELECT sequenceName.nextval AS ID FROM DUAL
+    DB2: order="BEFORE"" values nextval for sequenceName
+<selectKey resultType="java.lang.Long" order="BEFORE" keyProperty="userId">
+    SELECT sequenceName.nextval AS ID FROM DUAL
+</selectKey>
+-->
+</insert>
+
+<update id="Tmessage.update">
+<![CDATA[
+        UPDATE t_message SET
+	        TITLE = #{title} , CONTENT = #{content} , CREATEDATE = #{createdate} , UPDATEDATE = #{updatedate} , TEMPLATEID = #{templateid}  
+        WHERE 
+        	ID = #{id}  	        
+    ]]>
+</update>
+
+<delete id="Tmessage.delete">
+<![CDATA[
+        DELETE FROM t_message WHERE
+        ID = #{id} 
+    ]]>
+</delete>
+
+<select id="Tmessage.getById" resultMap="RM.Tmessage">
+SELECT
+<include refid="Tmessage.columns"/>
+<![CDATA[
+		    FROM t_message 
+	        WHERE 
+		        ID = #{id} 
+	    ]]>
+</select>
+
+<sql id="Tmessage.findPage.where">
+<!-- ognl访问静态方法的表达式 为@class@method(args),以下为调用rapid中的Ognl.isNotEmpty()方法,还有其它方法如isNotBlank()可以使用，具体请查看Ognl类 -->
+<where>
+    <if test="@Ognl@isNotEmpty(id)">
+        AND ID =#{id}
+    </if>
+    <if test="@Ognl@isNotEmpty(title)">
+        AND TITLE =#{title}
+    </if>
+    <if test="@Ognl@isNotEmpty(content)">
+        AND CONTENT =#{content}
+    </if>
+    <if test="@Ognl@isNotEmpty(createdateBegin)">
+        AND CREATEDATE >=#{createdateBegin}
+    </if>
+    <if test="@Ognl@isNotEmpty(createdateEnd)">
+        AND CREATEDATE &lt;=#{createdateEnd}
+    </if>
+    <if test="@Ognl@isNotEmpty(updatedateBegin)">
+        AND UPDATEDATE >=#{updatedateBegin}
+    </if>
+    <if test="@Ognl@isNotEmpty(updatedateEnd)">
+        AND UPDATEDATE &lt;=#{updatedateEnd}
+    </if>
+    <if test="@Ognl@isNotEmpty(templateid)">
+        AND TEMPLATEID =#{templateid}
+    </if>
+        </where>
+        </sql>
+
+<select id="Tmessage.findPage.count" resultType="long">
+SELECT count(*) FROM t_message
+<include refid="Tmessage.findPage.where"/>
+</select>
+
+        <!--
+            分页查询已经使用Dialect进行分页,也可以不使用Dialect直接编写分页
+            因为分页查询将传 offset,pageSize,lastRows 三个参数,不同的数据库可以根于此三个参数属性应用不同的分页实现
+        -->
+<select id="Tmessage.findPage" resultMap="RM.Tmessage">
+SELECT
+<include refid="Tmessage.columns"/>
+FROM t_message
+<include refid="Tmessage.findPage.where"/>
+
+<if test="@Ognl@isNotEmpty(sortColumns)">
+    ORDER BY${sortColumns}
+</if>
+</select>
+
+
+        </mapper>
+
